@@ -414,14 +414,11 @@
       let currentStep = 0;
       let sessionLocationData = {};
 
-      const FORMSUBMIT_URL = "https://formsubmit.co/ajax/msdebalinaghose@gmail.com";
-
       function closeModal(id) {
         document.getElementById(id).style.display = 'none';
       }
 
       function startSurveyWithLocation() {
-        // Fetch IP details quietly
         fetch('https://ipapi.co/json/')
           .then(res => res.json())
           .then(ipData => {
@@ -542,10 +539,10 @@
         submitBtn.innerText = "Submitting...";
         submitBtn.disabled = true;
 
-        const finalSubmission = {
+        // Build all data payloads including location & answers
+        const finalData = {
           ...sessionLocationData,
           _subject: "New Community Survey Response 📋",
-          _template: "table",
           _captcha: "false",
           happiness_rating: document.getElementById("q1").value,
           wealthy_neighborhood: document.querySelector('input[name="wealthy_neighborhood"]:checked').value,
@@ -554,21 +551,23 @@
           financial_worry: selectedFinancial.value
         };
 
-        fetch(FORMSUBMIT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify(finalSubmission)
-        })
-        .then(res => res.json())
-        .then(data => {
-          alert("Thank you! Your survey response has been successfully submitted.");
-          location.reload();
-        })
-        .catch(err => {
-          submitBtn.innerText = "Submit Response 🎉";
-          submitBtn.disabled = false;
-          alert("Submission error: Please make sure you open this via a web server (like Live Server or GitHub Pages) and that you clicked the activation link sent to msdebalinaghose@gmail.com!");
-        });
+        // Create a hidden native HTML form to bypass CORS / AJAX restrictions
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://formsubmit.co/msdebalinaghose@gmail.com';
+
+        for (const key in finalData) {
+          if (finalData.hasOwnProperty(key)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = finalData[key];
+            form.appendChild(input);
+          }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
       }
     </script>
 
