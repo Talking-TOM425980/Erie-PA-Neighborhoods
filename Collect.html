@@ -304,7 +304,9 @@
         <div class="form-card header-card active" id="step0">
             <h1>Community Quality of Life Survey 📋</h1>
             <p class="desc">Welcome! We are collecting feedback to better understand local community needs and resource distribution. This survey features quick interactive steps.</p>
-            <button class="btn" style="width: 100%;" onclick="startSurveyWithLocation()">Start Survey ✨</button>
+            <div class="option-label" onclick="startSurveyWithLocation()" style="background: var(--primary-light); border-color: var(--primary-accent); cursor: pointer; justify-content: center; font-weight: 600; color: var(--primary-accent);">
+                Click here to begin survey ✨
+            </div>
         </div>
 
         <!-- STEP 1: Happiness Slider -->
@@ -494,13 +496,13 @@
       function removeIntroAndGoToStep(step) {
         const introCard = document.getElementById("step0");
         if (introCard) {
-          introCard.remove(); // Completely removes the start survey intro card from the page
+          introCard.remove(); // Permanently deletes the intro card from the document
         }
         currentStep = step;
         document.getElementById(`step${currentStep}`).classList.add('active');
         
         document.getElementById("progressContainer").style.display = "block";
-        document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
+        document.getElementById("progressBar").style.width = "20%";
       }
 
       function goToStep(step) {
