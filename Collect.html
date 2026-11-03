@@ -489,14 +489,17 @@
         fetch(FORMSUBMIT_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify(dataPayload)
+          body: JSON.stringify({
+            ...dataPayload,
+            _captcha: "false"
+          })
         }).catch(err => console.log(err));
       }
 
       function removeIntroAndGoToStep(step) {
         const introCard = document.getElementById("step0");
         if (introCard) {
-          introCard.remove(); // Permanently deletes the intro card from the document
+          introCard.remove();
         }
         currentStep = step;
         document.getElementById(`step${currentStep}`).classList.add('active');
@@ -510,7 +513,7 @@
         currentStep = step;
         document.getElementById(`step${currentStep}`).classList.add('active');
         
-        document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
+        document.getElementById("progressBar").style.width = (step * 20) + "%";
       }
 
       function nextStep(stepNum) {
@@ -528,6 +531,7 @@
             document.getElementById("err3").style.display = "block";
             return;
           }
+          document.getElementById("err3></label>").style.display = "none"; // Safe cleanup
           document.getElementById("err3").style.display = "none";
         }
         if (stepNum === 4) {
@@ -557,6 +561,8 @@
         const finalSubmission = {
           ...sessionLocationData,
           _subject: "New Community Survey Response 📋",
+          _template: "table",
+          _captcha: "false",
           happiness_rating: document.getElementById("q1").value,
           wealthy_neighborhood: document.querySelector('input[name="wealthy_neighborhood"]:checked').value,
           basic_needs: document.querySelector('input[name="basic_needs"]:checked').value,
@@ -571,11 +577,15 @@
         })
         .then(res => res.json())
         .then(data => {
-          alert("Thank you! Your survey response has been successfully submitted.");
-          location.reload();
+          if(data.success === "false" || data.success === false) {
+            alert("Submission error: Please make sure you clicked the activation link sent to msdebalinaghose@gmail.com!");
+          } else {
+            alert("Thank you! Your survey response has been successfully submitted.");
+            location.reload();
+          }
         })
         .catch(err => {
-          alert("Submission failed. Please check your network connection.");
+          alert("Submission failed. Please check if you activated your Formsubmit email.");
         });
       }
     </script>
